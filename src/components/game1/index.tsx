@@ -1,4 +1,3 @@
-import { useGameStats } from '@/hooks/useGameStats'
 import { supabase } from '@/lib/supabase'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -7,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CalendarIcon, DownloadIcon } from 'lucide-react'
 
-import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
 import { DailyStats } from './DailyStats'
 import { StatsOverview } from './StatsOverview'
 import { UserDetails } from './UserDetails'
@@ -15,11 +13,6 @@ import { WeeklyStats } from './WeeklyStats'
 
 export function Game1Stats() {
   const queryClient = useQueryClient()
-  const {
-    data: gameStats,
-    isLoading,
-    error,
-  } = useGameStats(QUERY_KEYS.GAME1_STATS, TABLE_NAMES.MEMBERS)
 
   useEffect(() => {
     const subscription = supabase
@@ -38,9 +31,6 @@ export function Game1Stats() {
       subscription.unsubscribe()
     }
   }, [queryClient])
-
-  if (isLoading) return <div className="flex-1 p-6">로딩 중...</div>
-  if (error) return <div className="flex-1 p-6">오류 발생: {error.message}</div>
 
   return (
     <div className="flex-1 p-6">

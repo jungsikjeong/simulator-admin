@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "gen:types": "npx supabase gen types typescript --project-id miyhogcslmxibcacvhvz > src/supabase/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
