@@ -5,16 +5,32 @@ import { useQuery } from '@tanstack/react-query'
 export function useGameMembers(
   queryKey: string,
   tableName: string,
-  limit: number = 4,
+  days: number | null = null,
+  limit: number | null = null,
 ) {
   return useQuery({
-    queryKey: [queryKey],
+    queryKey: [queryKey, days],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const thirtyDaysAgo = new Date()
+
+      if (days !== null) {
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - days)
+      }
+
+      let query = supabase
         .from(tableName)
         .select('*')
-        .limit(limit)
         .order('created_at', { ascending: false })
+
+      if (limit !== null) {
+        query = query.limit(limit)
+      }
+
+      if (days !== null) {
+        query = query.gte('created_at', thirtyDaysAgo.toISOString())
+      }
+
+      const { data, error } = await query
 
       if (error) {
         throw new Error(error.message)

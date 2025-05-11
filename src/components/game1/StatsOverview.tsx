@@ -68,6 +68,8 @@ export function StatsOverview() {
   const { data: gameMembers } = useGameMembers(
     QUERY_KEYS.GAME1_STATS,
     TABLE_NAMES.MEMBERS,
+    null,
+    4,
   )
 
   useEffect(() => {
