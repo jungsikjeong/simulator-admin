@@ -18,21 +18,6 @@ export const Route = createRootRoute({
                 짐빔 게임 관리자
               </Link>
             </div>
-            <div className="ml-auto flex items-center gap-4">
-              <div className="flex items-center">
-                <div className="relative">
-                  <Button variant="ghost" className="rounded-full" size="icon">
-                    <span className="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
-                      <img
-                        className="aspect-square h-full w-full"
-                        src="https://avatars.githubusercontent.com/u/124599?v=4"
-                        alt="관리자"
-                      />
-                    </span>
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         </header>
         <div className="flex flex-1">

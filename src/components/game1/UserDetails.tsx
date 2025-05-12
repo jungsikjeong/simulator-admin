@@ -13,8 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { FileSpreadsheetIcon } from 'lucide-react'
 
 export function UserDetails() {
   return (
@@ -27,10 +25,6 @@ export function UserDetails() {
               모든 사용자의 상세 정보 및 진행 상태
             </CardDescription>
           </div>
-          <Button size="sm" className="gap-1">
-            <FileSpreadsheetIcon className="h-4 w-4" />
-            엑셀 다운로드
-          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -39,8 +33,6 @@ export function UserDetails() {
                 <TableHead>사용자 ID</TableHead>
                 <TableHead>최근 접속일</TableHead>
                 <TableHead>진행 상태</TableHead>
-                <TableHead>플레이 시간</TableHead>
-                <TableHead>진행률</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -52,8 +44,6 @@ export function UserDetails() {
                     엔딩 완료
                   </span>
                 </TableCell>
-                <TableCell>45분 12초</TableCell>
-                <TableCell>100%</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>user_12346</TableCell>
@@ -63,8 +53,6 @@ export function UserDetails() {
                     진행 중
                   </span>
                 </TableCell>
-                <TableCell>32분 05초</TableCell>
-                <TableCell>67%</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>user_12347</TableCell>
@@ -74,8 +62,6 @@ export function UserDetails() {
                     중도 이탈
                   </span>
                 </TableCell>
-                <TableCell>8분 45초</TableCell>
-                <TableCell>23%</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>user_12348</TableCell>
@@ -85,8 +71,6 @@ export function UserDetails() {
                     엔딩 완료
                   </span>
                 </TableCell>
-                <TableCell>51분 32초</TableCell>
-                <TableCell>100%</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>user_12349</TableCell>
@@ -96,8 +80,6 @@ export function UserDetails() {
                     중도 이탈
                   </span>
                 </TableCell>
-                <TableCell>12분 17초</TableCell>
-                <TableCell>35%</TableCell>
               </TableRow>
             </TableBody>
           </Table>
