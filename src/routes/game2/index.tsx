@@ -1,23 +1,11 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { checkAdminAuth } from '@/utils/auth'
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { CalendarIcon, DownloadIcon, FileSpreadsheetIcon } from 'lucide-react'
+import { checkAdminAuth } from '@/utils/auth'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/game2/')({
   beforeLoad: async () => {
