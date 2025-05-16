@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
 import { useQuery } from '@tanstack/react-query'
 
-export function useGetDailySignups(queryKey: string, tableName: string) {
+export function useGetDailySignups(queryKey: Array<string>, rpcQuery: string, tableName: string) {
   return useQuery({
     queryKey: [queryKey],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc(queryKey, {
+      const { data, error } = await supabase.rpc(rpcQuery, {
         tablename: tableName,
       })
 

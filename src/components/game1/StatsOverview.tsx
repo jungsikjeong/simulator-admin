@@ -56,17 +56,19 @@ export function StatsOverview() {
   const [chartData, setChartData] = useState([])
 
   const { data: dailySignups } = useGetDailySignups(
-    QUERY_KEYS.GET_DAILY_SIGNUPS,
+    [...QUERY_KEYS.game1Stats.signupDaily()],
+    'get_daily_signups',
     TABLE_NAMES.MEMBERS,
   )
 
   const { data: weeklySignups } = useGetWeeklySignups(
-    QUERY_KEYS.GET_WEEKLY_SIGNUPS,
+    [...QUERY_KEYS.game1Stats.signupWeekly()],
+    'get_weekly_signups',
     TABLE_NAMES.MEMBERS,
   )
 
   const { data: gameMembers } = useGameMembers(
-    QUERY_KEYS.GAME1_STATS,
+    [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
     null,
     4,

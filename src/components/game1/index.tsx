@@ -10,6 +10,7 @@ import { DailyStats } from './DailyStats'
 import { StatsOverview } from './StatsOverview'
 import { UserDetails } from './UserDetails'
 import { WeeklyStats } from './WeeklyStats'
+import { QUERY_KEYS } from '@/constants'
 
 export function Game1Stats() {
   const queryClient = useQueryClient()
@@ -22,7 +23,7 @@ export function Game1Stats() {
         { event: '*', schema: 'public', table: 'members' },
         () => {
           // 데이터가 변경되면 쿼리 무효화
-          queryClient.invalidateQueries({ queryKey: ['game1-stats'] })
+          queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.game1Stats.all()] })
         },
       )
       .subscribe()

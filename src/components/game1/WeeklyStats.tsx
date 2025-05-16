@@ -52,7 +52,7 @@ export function WeeklyStats() {
   const itemsPerPage = 10
 
   const { data: gameMembers } = useGameMembers(
-    QUERY_KEYS.GAME1_STATS,
+    [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
     90, // 약 3개월 데이터
     null,

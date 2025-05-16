@@ -1,20 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembers } from '@/hooks/useGameMembers'
 import React, { useState } from 'react'
 import {
   CartesianGrid,
@@ -27,6 +10,13 @@ import {
   YAxis,
 } from 'recharts'
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -34,6 +24,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
+import { useGameMembers } from '@/hooks/useGameMembers'
 
 interface DailyStats {
   date: string
@@ -46,7 +46,7 @@ export function DailyStats() {
   const itemsPerPage = 10
 
   const { data: gameMembers } = useGameMembers(
-    QUERY_KEYS.GAME1_STATS,
+    [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
     30,
     null,

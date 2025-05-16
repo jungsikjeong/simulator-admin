@@ -1,15 +1,15 @@
-import { supabase } from '@/lib/supabase'
-import type { Tables } from '@/supabase/database.types'
 import { useQuery } from '@tanstack/react-query'
+import type { Tables } from '@/supabase/database.types'
+import { supabase } from '@/lib/supabase'
 
 export function useGameMembers(
-  queryKey: string,
+  queryKey: Array<string>,
   tableName: string,
   days: number | null = null,
   limit: number | null = null,
 ) {
   return useQuery({
-    queryKey: [queryKey, days],
+    queryKey: queryKey,
     queryFn: async () => {
       const thirtyDaysAgo = new Date()
 
@@ -36,7 +36,7 @@ export function useGameMembers(
         throw new Error(error.message)
       }
 
-      return data as Tables<'members'>[]
+      return data as Array<Tables<'members'>>
     },
     refetchInterval: 30000, // 30초마다 자동 갱신
   })
