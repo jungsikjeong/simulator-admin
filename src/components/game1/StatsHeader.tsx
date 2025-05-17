@@ -12,11 +12,7 @@ interface StatsHeaderProps {
   filename?: string
 }
 
-export function StatsHeader({
-  title,
-
-  filename,
-}: StatsHeaderProps) {
+export function StatsHeader({ title, filename }: StatsHeaderProps) {
   const today = dayjs()
   const thirtyDaysAgo = today.subtract(30, 'day')
 
@@ -50,6 +46,7 @@ export function StatsHeader({
           onDateRangeChange={setDateRange}
         />
         <ExcelDownloadButton
+          title="게임1 엑셀 다운"
           dateRange={dateRange}
           getDataForExport={getDataForExport}
           filename={filename}

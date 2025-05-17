@@ -10,12 +10,14 @@ interface ExcelDownloadButtonProps {
   getDataForExport: () => any[]
   filename?: string
   className?: string
+  title: string
 }
 
 export function ExcelDownloadButton({
   dateRange,
   getDataForExport,
   filename = 'game1-stats',
+  title,
   className,
 }: ExcelDownloadButtonProps) {
   const handleDownload = () => {
@@ -49,7 +51,7 @@ export function ExcelDownloadButton({
       onClick={handleDownload}
     >
       <DownloadIcon className="h-4 w-4" />
-      엑셀 다운로드
+      {title}
     </Button>
   )
 }
