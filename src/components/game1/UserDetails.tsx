@@ -1,10 +1,4 @@
-import { useEffect, useState } from 'react'
-import { format } from 'date-fns'
-import {
-  ChevronDown,
-  ChevronUp,
-  SlidersHorizontal,
-} from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -12,17 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembers } from '@/hooks/useGameMembers'
 import {
   Pagination,
   PaginationContent,
@@ -39,6 +22,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
+import { useGameMembers } from '@/hooks/useGameMembers'
+import { getStatusText } from '@/utils/getStatusText'
+import { format } from 'date-fns'
+import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 type Member = {
   id: string
@@ -65,9 +62,11 @@ export function UserDetails() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) { // sm breakpoint
+      if (window.innerWidth < 640) {
+        // sm breakpoint
         setItemsPerPage(3)
-      } else if (window.innerWidth < 1024) { // lg breakpoint
+      } else if (window.innerWidth < 1024) {
+        // lg breakpoint
         setItemsPerPage(4)
       } else {
         setItemsPerPage(5)
@@ -88,7 +87,9 @@ export function UserDetails() {
     // 필터링
     let filteredData = [...gameMembers]
     if (statusFilter) {
-      filteredData = filteredData.filter(member => member.status === statusFilter)
+      filteredData = filteredData.filter(
+        (member) => member.status === statusFilter,
+      )
     }
 
     // 정렬 (항상 created_at을 기준으로)
@@ -133,7 +134,6 @@ export function UserDetails() {
     setCurrentPage(page)
   }
 
-  // 상태에 따른 스타일 클래스 반환
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'completed':
@@ -146,21 +146,6 @@ export function UserDetails() {
         return 'bg-red-50 text-red-700'
       default:
         return 'bg-gray-50 text-gray-700'
-    }
-  }
-
-  // 상태에 따른 한글 텍스트 반환
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return '엔딩 완료'
-      case 'in_progress':
-        return '진행 중'
-      case 'pending':
-        return '대기 중'
-
-      default:
-        return '알 수 없음'
     }
   }
 
@@ -201,7 +186,7 @@ export function UserDetails() {
         >
           1
         </PaginationLink>
-      </PaginationItem>
+      </PaginationItem>,
     )
 
     // 현재 페이지가 4보다 크면 처음과 현재 페이지 사이에 생략 부호 추가
@@ -209,7 +194,7 @@ export function UserDetails() {
       items.push(
         <PaginationItem key="ellipsis-1">
           <PaginationEllipsis />
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -226,7 +211,7 @@ export function UserDetails() {
           >
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -235,7 +220,7 @@ export function UserDetails() {
       items.push(
         <PaginationItem key="ellipsis-2">
           <PaginationEllipsis />
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -249,7 +234,7 @@ export function UserDetails() {
           >
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -258,7 +243,7 @@ export function UserDetails() {
 
   // 정렬 방향 전환
   const toggleSortDirection = () => {
-    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+    setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
   }
 
   return (
@@ -284,10 +269,14 @@ export function UserDetails() {
         {showFilters && (
           <div className="px-6 pb-2 flex flex-col sm:flex-row gap-4">
             <div className="w-full sm:w-1/2">
-              <label className="text-sm font-medium mb-1 block">진행 상태</label>
+              <label className="text-sm font-medium mb-1 block">
+                진행 상태
+              </label>
               <Select
-                value={statusFilter || "all"}
-                onValueChange={(value) => setStatusFilter(value === "all" ? null : value)}
+                value={statusFilter || 'all'}
+                onValueChange={(value) =>
+                  setStatusFilter(value === 'all' ? null : value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="모든 상태" />
@@ -301,7 +290,9 @@ export function UserDetails() {
               </Select>
             </div>
             <div className="w-full sm:w-1/2">
-              <label className="text-sm font-medium mb-1 block">정렬 방향</label>
+              <label className="text-sm font-medium mb-1 block">
+                정렬 방향
+              </label>
               <Button
                 variant="outline"
                 className="w-full flex justify-between items-center"
@@ -325,7 +316,10 @@ export function UserDetails() {
                 <TableRow>
                   <TableHead className="w-1/3">사용자 ID</TableHead>
                   <TableHead className="w-1/3">
-                    <div className="flex items-center cursor-pointer" onClick={toggleSortDirection}>
+                    <div
+                      className="flex items-center cursor-pointer"
+                      onClick={toggleSortDirection}
+                    >
                       최근 접속일
                       {sortDirection === 'desc' ? (
                         <ChevronDown className="h-4 w-4 ml-1" />
@@ -341,10 +335,16 @@ export function UserDetails() {
                 {currentItems.length > 0 ? (
                   currentItems.map((member: Member) => (
                     <TableRow key={member.id}>
-                      <TableCell className="break-all font-medium">{member.name}</TableCell>
-                      <TableCell className="whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
+                      <TableCell className="break-all font-medium">
+                        {member.name}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatDate(member.created_at)}
+                      </TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusStyle(member.status)}`}>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusStyle(member.status)}`}
+                        >
                           {getStatusText(member.status)}
                         </span>
                       </TableCell>
@@ -353,7 +353,9 @@ export function UserDetails() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-4">
-                      {statusFilter ? '해당 상태의 사용자가 없습니다' : '데이터가 없습니다'}
+                      {statusFilter
+                        ? '해당 상태의 사용자가 없습니다'
+                        : '데이터가 없습니다'}
                     </TableCell>
                   </TableRow>
                 )}
@@ -368,7 +370,11 @@ export function UserDetails() {
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={goToPreviousPage}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      className={
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
                     >
                       Previous
                     </PaginationPrevious>
@@ -379,7 +385,11 @@ export function UserDetails() {
                   <PaginationItem>
                     <PaginationNext
                       onClick={goToNextPage}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      className={
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
                     >
                       Next
                     </PaginationNext>

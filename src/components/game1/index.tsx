@@ -1,16 +1,19 @@
 import { supabase } from '@/lib/supabase'
 import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import * as React from 'react'
 import { useEffect } from 'react'
+import type { DateRange } from 'react-day-picker'
 
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CalendarIcon, DownloadIcon } from 'lucide-react'
 
+import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
+import { useGameMembersByDateRange } from '@/hooks/useGameMembers'
 import { DailyStats } from './DailyStats'
+import { StatsHeader } from './StatsHeader'
 import { StatsOverview } from './StatsOverview'
 import { UserDetails } from './UserDetails'
 import { WeeklyStats } from './WeeklyStats'
-import { QUERY_KEYS } from '@/constants'
 
 export function Game1Stats() {
   const queryClient = useQueryClient()
@@ -23,7 +26,9 @@ export function Game1Stats() {
         { event: '*', schema: 'public', table: 'members' },
         () => {
           // 데이터가 변경되면 쿼리 무효화
-          queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.game1Stats.all()] })
+          queryClient.invalidateQueries({
+            queryKey: [...QUERY_KEYS.game1Stats.all()],
+          })
         },
       )
       .subscribe()
@@ -35,19 +40,8 @@ export function Game1Stats() {
 
   return (
     <div className="flex-1 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">게임1 통계</h1>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 rounded-md border px-3 py-1 text-sm">
-            <CalendarIcon className="h-4 w-4" />
-            <span>2023.01.20 - 2023.02.09</span>
-          </div>
-          <Button size="sm" variant="outline" className="gap-1">
-            <DownloadIcon className="h-4 w-4" />
-            엑셀 다운로드
-          </Button>
-        </div>
-      </div>
+      <StatsHeader title="게임1 통계" filename="game1-stats" />
+
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="cursor-pointer">
           <TabsTrigger value="overview" className="cursor-pointer">
