@@ -1,14 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import { useQueryClient } from '@tanstack/react-query'
-import dayjs from 'dayjs'
-import * as React from 'react'
 import { useEffect } from 'react'
-import type { DateRange } from 'react-day-picker'
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembersByDateRange } from '@/hooks/useGameMembers'
+import { QUERY_KEYS } from '@/constants'
 import { DailyStats } from './DailyStats'
 import { StatsHeader } from './StatsHeader'
 import { StatsOverview } from './StatsOverview'
