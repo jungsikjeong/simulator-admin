@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import type { Tables } from '@/supabase/database.types'
 import { supabase } from '@/lib/supabase'
-import type { DateRange } from 'react-day-picker'
+import type { Tables } from '@/supabase/database.types'
+import type { DateRangeType } from '@/types/dateRange.type'
+import { useQuery } from '@tanstack/react-query'
 
 export function useGameMembers(
   queryKey: Array<string>,
@@ -46,7 +46,7 @@ export function useGameMembers(
 export function useGameMembersByDateRange(
   queryKey: Array<string>,
   tableName: string,
-  dateRange?: DateRange | undefined,
+  dateRange?: DateRangeType | undefined,
   limit: number | null = null,
 ) {
   return useQuery({
