@@ -1,10 +1,4 @@
 import { Game2Stats } from '@/components/game2'
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { checkAdminAuth } from '@/utils/auth'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
