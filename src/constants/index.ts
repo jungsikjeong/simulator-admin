@@ -1,8 +1,7 @@
-
 const TABLE_NAMES = {
   MEMBERS: 'members',
+  MEMBERS_2: 'members_2',
 }
-
 
 const QUERY_KEYS = {
   game1Stats: {
@@ -15,9 +14,6 @@ const QUERY_KEYS = {
     signupDaily: () => [...QUERY_KEYS.game2Stats.all(), 'daily'] as const,
     signupWeekly: () => [...QUERY_KEYS.game2Stats.all(), 'weekly'] as const,
   },
-
 }
 
-
 export { QUERY_KEYS, TABLE_NAMES }
-

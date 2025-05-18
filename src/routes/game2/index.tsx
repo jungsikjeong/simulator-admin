@@ -1,3 +1,4 @@
+import { Game2Stats } from '@/components/game2'
 import {
   Card,
   CardDescription,
@@ -30,16 +31,3 @@ export const Route = createFileRoute('/game2/')({
 
   component: Game2Stats,
 })
-
-function Game2Stats() {
-  return (
-    <div className="container mx-auto py-10">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>게임2</CardTitle>
-          <CardDescription>게임2는 준비중입니다.</CardDescription>
-        </CardHeader>
-      </Card>
-    </div>
-  )
-}
