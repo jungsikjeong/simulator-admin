@@ -7,12 +7,16 @@ import {
 } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
+import { useActionMember } from '@/hooks/useActionMember'
 import { useGameMembers } from '@/hooks/useGameMembers'
 import { useGetDailySignups } from '@/hooks/useGetDailySignups'
 import { useGetWeeklySignups } from '@/hooks/useGetWeeklySignups'
 import { getColorClass, getPrefix } from '@/utils/colorClass'
 import { getTodayStats } from '@/utils/getTodayStats'
 import { getWeeklyStats } from '@/utils/getWeeklyStats'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useState } from 'react'
 import {
   Bar,
@@ -24,9 +28,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/ko'
+
 
 dayjs.extend(relativeTime)
 dayjs.locale('ko')
@@ -54,6 +56,7 @@ export function StatsOverview() {
   })
 
   const [chartData, setChartData] = useState([])
+  const [actionChartData, setActionChartData] = useState<Array<{ name: string; 공유하기: number; 다시하기: number }>>([])
 
   const { data: dailySignups } = useGetDailySignups(
     [...QUERY_KEYS.game2Stats.signupDaily()],
@@ -74,6 +77,13 @@ export function StatsOverview() {
     4,
   )
 
+  const { data: actionMembers } = useActionMember({
+    queryKey: [...QUERY_KEYS.game2Stats.actionMember()],
+    tableName: TABLE_NAMES.MEMBER_ACTIONS_2
+  })
+
+
+
   useEffect(() => {
     if (dailySignups) {
       const todayStats = getTodayStats(dailySignups)
@@ -92,11 +102,37 @@ export function StatsOverview() {
           name: `${new Date(item.week_start).getMonth() + 1}월 ${Math.ceil(new Date(item.week_start).getDate() / 7)}주`,
           사용자수: item.count,
         }))
-        .slice(-6) // 최근 6주 데이터만 사용
+        .slice(-6)
 
       setChartData(chartData)
     }
   }, [weeklySignups])
+
+  useEffect(() => {
+    if (actionMembers) {
+      const weeklyActions = actionMembers.reduce((acc: Record<string, { share: number; retry: number }>, action) => {
+        const weekStart = dayjs(action.created_at).startOf('week').format('YYYY-MM-DD')
+
+        if (!acc[weekStart]) {
+          acc[weekStart] = { share: 0, retry: 0 }
+        }
+
+        acc[weekStart][action.action_type === 'share' ? 'share' : 'retry']++
+        return acc
+      }, {})
+
+      const chartData = Object.entries(weeklyActions)
+        .map(([weekStart, data]) => ({
+          name: `${dayjs(weekStart).month() + 1}월 ${Math.ceil(dayjs(weekStart).date() / 7)}주`,
+          공유하기: data.share,
+          다시하기: data.retry
+        }))
+        .sort((a, b) => dayjs(a.name).unix() - dayjs(b.name).unix())
+        .slice(-6)
+
+      setActionChartData(chartData)
+    }
+  }, [actionMembers])
 
   return (
     <>
@@ -182,6 +218,7 @@ export function StatsOverview() {
             <CardDescription>오늘 접속한 사용자 통계</CardDescription>
           </CardHeader>
           <CardContent>
+
             <Table>
               <TableBody>
                 {gameMembers?.map((member) => (
@@ -232,9 +269,54 @@ export function StatsOverview() {
                 ))}
               </TableBody>
             </Table>
+
           </CardContent>
         </Card>
+
+
       </div>
+      <Card className="">
+        <CardHeader>
+          <CardTitle>주간 액션 통계</CardTitle>
+          <CardDescription>다시하기와 공유하기 비율</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart
+              data={actionChartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 25,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="name"
+                angle={-45}
+                textAnchor="end"
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar
+                dataKey="다시하기"
+                fill="var(--chart-1)"
+                name="다시하기"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="공유하기"
+                fill="var(--chart-2)"
+                name="공유하기"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </>
   )
 }
