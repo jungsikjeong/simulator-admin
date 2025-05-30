@@ -20,7 +20,10 @@ export function useGameMembers(
 
       let query = supabase
         .from(tableName)
-        .select('*')
+        .select(`
+          *,
+          member_actions(action_type, created_at)
+        `)
         .order('created_at', { ascending: false })
 
       if (limit !== null) {

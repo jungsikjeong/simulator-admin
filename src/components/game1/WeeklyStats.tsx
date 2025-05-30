@@ -45,6 +45,7 @@ interface WeeklyStats {
   weekStart: string
   users: number
   completed: number
+  actions: { [key: string]: number }
 }
 
 export function WeeklyStats() {
@@ -90,11 +91,24 @@ export function WeeklyStats() {
             weekStart: weekStart.format('YYYY-MM-DD'),
             users: 0,
             completed: 0,
+            actions: {},
           }
         }
 
         acc[weekKey].users++
         if (member.status === 'completed') acc[weekKey].completed++
+
+        // member_actions 집계
+        if (Array.isArray(member.member_actions)) {
+          member.member_actions.forEach(action => {
+            if (action.action_type === 'share' || action.action_type === 'retry') {
+              if (!acc[weekKey].actions[action.action_type]) {
+                acc[weekKey].actions[action.action_type] = 0
+              }
+              acc[weekKey].actions[action.action_type]++
+            }
+          })
+        }
 
         return acc
       },
@@ -107,6 +121,13 @@ export function WeeklyStats() {
   }, [gameMembers])
 
   const chartData = weeklyData.slice(-12)
+
+  // 액션 타입 목록 및 한글 매핑
+  const actionTypes = ['share', 'retry']
+  const actionTypeLabels = {
+    share: '공유하기 횟수',
+    retry: '다시하기 횟수',
+  }
 
   const totalPages = Math.ceil(weeklyData.length / itemsPerPage)
   const currentData = weeklyData
@@ -158,6 +179,19 @@ export function WeeklyStats() {
                 name="엔딩 완료"
                 strokeWidth={2}
               />
+              {actionTypes.map((type, index) => (
+                <Line
+                  key={type}
+                  type="linear"
+                  dataKey={`actions[${type}]`}
+                  stroke={`hsl(${index * 45}, 70%, 50%)`}
+                  name={actionTypeLabels[type as keyof typeof actionTypeLabels]}
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  connectNulls={true}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -178,6 +212,9 @@ export function WeeklyStats() {
                 <TableHead>사용자 수</TableHead>
                 <TableHead>엔딩 완료</TableHead>
                 <TableHead>완료율</TableHead>
+                {actionTypes.map(type => (
+                  <TableHead key={type}>{actionTypeLabels[type as keyof typeof actionTypeLabels]}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -192,6 +229,11 @@ export function WeeklyStats() {
                         ? `${Math.round((week.completed / week.users) * 100)}%`
                         : '0%'}
                     </TableCell>
+                    {actionTypes.map(type => (
+                      <TableCell key={type}>
+                        {(week.actions[type] ?? 0).toLocaleString()}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 ))
               ) : (

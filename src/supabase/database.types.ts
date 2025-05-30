@@ -27,7 +27,57 @@ export type Database = {
         }
         Relationships: []
       }
+      member_actions: {
+        Row: {
+          action_type: Database["public"]["Enums"]["action_type"]
+          created_at: string
+          id: string
+          member_id: string
+        }
+        Insert: {
+          action_type: Database["public"]["Enums"]["action_type"]
+          created_at?: string
+          id?: string
+          member_id: string
+        }
+        Update: {
+          action_type?: Database["public"]["Enums"]["action_type"]
+          created_at?: string
+          id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_actions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["status"]
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          status?: Database["public"]["Enums"]["status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["status"]
+        }
+        Relationships: []
+      }
+      members_2: {
         Row: {
           created_at: string
           id: string
@@ -67,8 +117,17 @@ export type Database = {
           count: number
         }[]
       }
+      increment_replay_count: {
+        Args: { p_member_id: string }
+        Returns: undefined
+      }
+      record_member_action: {
+        Args: { p_member_id: string; p_action: string }
+        Returns: undefined
+      }
     }
     Enums: {
+      action_type: "share" | "retry"
       status: "in_progress" | "completed" | "pending"
     }
     CompositeTypes: {
@@ -185,6 +244,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      action_type: ["share", "retry"],
       status: ["in_progress", "completed", "pending"],
     },
   },
