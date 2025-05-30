@@ -34,7 +34,6 @@ import {
 } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
 import { useGameMembers } from '@/hooks/useGameMembers'
-import { useActionMember } from '@/hooks/useActionMember'
 
 interface Action {
   action_type: string

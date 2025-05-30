@@ -39,6 +39,19 @@ import 'dayjs/locale/ko'
 
 dayjs.locale('ko')
 
+interface Action {
+  action_type: string
+  created_at: string
+}
+
+interface Member {
+  created_at: string
+  id: string
+  name: string
+  status: 'in_progress' | 'completed' | 'pending'
+  member_actions?: Array<Action>
+}
+
 interface WeeklyStats {
   week: string
   displayWeek: string
@@ -57,7 +70,7 @@ export function WeeklyStats() {
     TABLE_NAMES.MEMBERS,
     90, // 약 3개월 데이터
     null,
-  )
+  ) as { data: Array<Member> | undefined }
 
   const weeklyData = React.useMemo(() => {
     if (!gameMembers) return []
