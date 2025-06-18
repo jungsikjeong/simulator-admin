@@ -253,7 +253,7 @@ export function UserDetails() {
           <div>
             <CardTitle>사용자 상세 정보</CardTitle>
             <CardDescription>
-              모든 사용자의 상세 정보 및 진행 상태
+              모든 사용자의 상세 정보 및 진행 상태 (총 {processedData.length}명)
             </CardDescription>
           </div>
           <Button
