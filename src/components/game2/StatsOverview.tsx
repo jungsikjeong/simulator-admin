@@ -8,7 +8,7 @@ import {
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
 import { useActionMember } from '@/hooks/useActionMember'
-import { useGameMembers } from '@/hooks/useGameMembers'
+import { useGameMembers2 } from '@/hooks/useGameMembers2'
 import { useGetDailySignups } from '@/hooks/useGetDailySignups'
 import { useGetWeeklySignups } from '@/hooks/useGetWeeklySignups'
 import { getColorClass, getPrefix } from '@/utils/colorClass'
@@ -28,7 +28,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-
 
 dayjs.extend(relativeTime)
 dayjs.locale('ko')
@@ -56,7 +55,9 @@ export function StatsOverview() {
   })
 
   const [chartData, setChartData] = useState([])
-  const [actionChartData, setActionChartData] = useState<Array<{ name: string; 공유하기: number; 다시하기: number }>>([])
+  const [actionChartData, setActionChartData] = useState<
+    Array<{ name: string; 공유하기: number; 다시하기: number }>
+  >([])
 
   const { data: dailySignups } = useGetDailySignups(
     [...QUERY_KEYS.game2Stats.signupDaily()],
@@ -70,7 +71,7 @@ export function StatsOverview() {
     TABLE_NAMES.MEMBERS_2,
   )
 
-  const { data: gameMembers } = useGameMembers(
+  const { data: gameMembers } = useGameMembers2(
     [...QUERY_KEYS.game2Stats.all()],
     TABLE_NAMES.MEMBERS_2,
     null,
@@ -79,10 +80,8 @@ export function StatsOverview() {
 
   const { data: actionMembers } = useActionMember({
     queryKey: [...QUERY_KEYS.game2Stats.actionMember()],
-    tableName: TABLE_NAMES.MEMBER_ACTIONS_2
+    tableName: TABLE_NAMES.MEMBER_ACTIONS_2,
   })
-
-
 
   useEffect(() => {
     if (dailySignups) {
@@ -110,22 +109,27 @@ export function StatsOverview() {
 
   useEffect(() => {
     if (actionMembers) {
-      const weeklyActions = actionMembers.reduce((acc: Record<string, { share: number; retry: number }>, action) => {
-        const weekStart = dayjs(action.created_at).startOf('week').format('YYYY-MM-DD')
+      const weeklyActions = actionMembers.reduce(
+        (acc: Record<string, { share: number; retry: number }>, action) => {
+          const weekStart = dayjs(action.created_at)
+            .startOf('week')
+            .format('YYYY-MM-DD')
 
-        if (!acc[weekStart]) {
-          acc[weekStart] = { share: 0, retry: 0 }
-        }
+          if (!acc[weekStart]) {
+            acc[weekStart] = { share: 0, retry: 0 }
+          }
 
-        acc[weekStart][action.action_type === 'share' ? 'share' : 'retry']++
-        return acc
-      }, {})
+          acc[weekStart][action.action_type === 'share' ? 'share' : 'retry']++
+          return acc
+        },
+        {},
+      )
 
       const chartData = Object.entries(weeklyActions)
         .map(([weekStart, data]) => ({
           name: `${dayjs(weekStart).month() + 1}월 ${Math.ceil(dayjs(weekStart).date() / 7)}주`,
           공유하기: data.share,
-          다시하기: data.retry
+          다시하기: data.retry,
         }))
         .sort((a, b) => dayjs(a.name).unix() - dayjs(b.name).unix())
         .slice(-6)
@@ -218,7 +222,6 @@ export function StatsOverview() {
             <CardDescription>오늘 접속한 사용자 통계</CardDescription>
           </CardHeader>
           <CardContent>
-
             <Table>
               <TableBody>
                 {gameMembers?.map((member) => (
@@ -269,11 +272,8 @@ export function StatsOverview() {
                 ))}
               </TableBody>
             </Table>
-
           </CardContent>
         </Card>
-
-
       </div>
       <Card className="">
         <CardHeader>

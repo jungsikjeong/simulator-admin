@@ -31,7 +31,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembers } from '@/hooks/useGameMembers'
+import { useGameMembers2 } from '@/hooks/useGameMembers2'
 import { getStatusText } from '@/utils/getStatusText'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react'
@@ -53,7 +53,7 @@ export function UserDetails() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [showFilters, setShowFilters] = useState(false)
 
-  const { data: gameMembers } = useGameMembers(
+  const { data: gameMembers } = useGameMembers2(
     [...QUERY_KEYS.game2Stats.all()],
     TABLE_NAMES.MEMBERS_2,
     null,

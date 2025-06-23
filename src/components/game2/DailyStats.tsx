@@ -1,14 +1,3 @@
-import React, { useState } from 'react'
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
 import {
   Card,
   CardContent,
@@ -33,7 +22,18 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembers } from '@/hooks/useGameMembers'
+import { useGameMembers2 } from '@/hooks/useGameMembers2'
+import React, { useState } from 'react'
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 interface Action {
   action_type: string
@@ -59,13 +59,12 @@ export function DailyStats() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  const { data: gameMembers } = useGameMembers(
+  const { data: gameMembers } = useGameMembers2(
     [...QUERY_KEYS.game2Stats.all()],
     TABLE_NAMES.MEMBERS_2,
     30,
     null,
   ) as { data: Array<Member> | undefined }
-
 
   const dailyData = React.useMemo(() => {
     if (!gameMembers) return []
@@ -87,7 +86,7 @@ export function DailyStats() {
         if (member.status === 'completed') acc[date].completed++
 
         // member_actions 데이터 처리
-        member.member_actions?.forEach(action => {
+        member.member_actions?.forEach((action) => {
           if (!acc[date].actions[action.action_type]) {
             acc[date].actions[action.action_type] = 0
           }
@@ -113,8 +112,8 @@ export function DailyStats() {
   // 액션 타입 목록 추출
   const actionTypes = React.useMemo(() => {
     const types = new Set<string>()
-    chartData.forEach(day => {
-      Object.keys(day.actions).forEach(type => types.add(type))
+    chartData.forEach((day) => {
+      Object.keys(day.actions).forEach((type) => types.add(type))
     })
     return Array.from(types)
   }, [chartData])
@@ -122,7 +121,7 @@ export function DailyStats() {
   // 액션 타입 한글 매핑
   const actionTypeLabels = {
     share: '공유하기 횟수',
-    retry: '다시하기 횟수'
+    retry: '다시하기 횟수',
   }
 
   const totalPages = Math.ceil(dailyData.length / itemsPerPage)
@@ -238,8 +237,10 @@ export function DailyStats() {
                 <TableHead>날짜</TableHead>
                 <TableHead>사용자 수</TableHead>
                 <TableHead>엔딩 완료</TableHead>
-                {actionTypes.map(type => (
-                  <TableHead key={type}>{actionTypeLabels[type as keyof typeof actionTypeLabels]}</TableHead>
+                {actionTypes.map((type) => (
+                  <TableHead key={type}>
+                    {actionTypeLabels[type as keyof typeof actionTypeLabels]}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -250,7 +251,7 @@ export function DailyStats() {
                     <TableCell>{day.date}</TableCell>
                     <TableCell>{day.users.toLocaleString()}</TableCell>
                     <TableCell>{day.completed.toLocaleString()}</TableCell>
-                    {actionTypes.map(type => (
+                    {actionTypes.map((type) => (
                       <TableCell key={type}>
                         {day.actions[type]?.toLocaleString() || 0}
                       </TableCell>
@@ -259,7 +260,10 @@ export function DailyStats() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3 + actionTypes.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={3 + actionTypes.length}
+                    className="h-24 text-center"
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <p className="text-muted-foreground">
                         아직 데이터가 없습니다.

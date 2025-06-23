@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/pagination'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
+import { useGameMembers2 } from '@/hooks/useGameMembers2'
 
 dayjs.locale('ko')
 
@@ -65,7 +66,7 @@ export function WeeklyStats() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  const { data: gameMembers } = useGameMembers(
+  const { data: gameMembers } = useGameMembers2(
     [...QUERY_KEYS.game2Stats.all()],
     TABLE_NAMES.MEMBERS_2,
     90, // 약 3개월 데이터
@@ -113,8 +114,11 @@ export function WeeklyStats() {
 
         // member_actions 집계
         if (Array.isArray(member.member_actions)) {
-          member.member_actions.forEach(action => {
-            if (action.action_type === 'share' || action.action_type === 'retry') {
+          member.member_actions.forEach((action) => {
+            if (
+              action.action_type === 'share' ||
+              action.action_type === 'retry'
+            ) {
               if (!acc[weekKey].actions[action.action_type]) {
                 acc[weekKey].actions[action.action_type] = 0
               }
@@ -225,8 +229,10 @@ export function WeeklyStats() {
                 <TableHead>사용자 수</TableHead>
                 <TableHead>엔딩 완료</TableHead>
                 <TableHead>완료율</TableHead>
-                {actionTypes.map(type => (
-                  <TableHead key={type}>{actionTypeLabels[type as keyof typeof actionTypeLabels]}</TableHead>
+                {actionTypes.map((type) => (
+                  <TableHead key={type}>
+                    {actionTypeLabels[type as keyof typeof actionTypeLabels]}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -242,7 +248,7 @@ export function WeeklyStats() {
                         ? `${Math.round((week.completed / week.users) * 100)}%`
                         : '0%'}
                     </TableCell>
-                    {actionTypes.map(type => (
+                    {actionTypes.map((type) => (
                       <TableCell key={type}>
                         {(week.actions[type] ?? 0).toLocaleString()}
                       </TableCell>
