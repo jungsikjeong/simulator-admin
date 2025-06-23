@@ -6,6 +6,14 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,7 +22,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { QUERY_KEYS, TABLE_NAMES } from '@/constants'
-import { useGameMembers } from '@/hooks/useGameMembers'
+import { useGameMembers2 } from '@/hooks/useGameMembers2'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
 import React, { useState } from 'react'
 import {
   CartesianGrid,
@@ -26,17 +36,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
-import dayjs from 'dayjs'
-import 'dayjs/locale/ko'
-import { useGameMembers2 } from '@/hooks/useGameMembers2'
 
 dayjs.locale('ko')
 
