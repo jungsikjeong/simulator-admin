@@ -67,7 +67,7 @@ export function WeeklyStats() {
   const [supabasePage, setSupabasePage] = useState(0)
   const [allMembers, setAllMembers] = useState<Member[]>([])
 
-  const { data: gameMembers, isLoading } = useGameMembers(
+  const { data: gameMembers } = useGameMembers(
     [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
     90, // 약 3개월 데이터
