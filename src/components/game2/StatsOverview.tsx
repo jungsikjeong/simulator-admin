@@ -224,7 +224,7 @@ export function StatsOverview() {
           <CardContent>
             <Table>
               <TableBody>
-                {gameMembers?.map((member) => (
+                {gameMembers?.data.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
                       <div className="font-medium">{member.name}</div>

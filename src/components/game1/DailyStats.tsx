@@ -59,19 +59,42 @@ export function DailyStats() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  const { data: gameMembers } = useGameMembers(
+  // 첫 페이지 데이터 가져오기
+  const { data: firstPageData } = useGameMembers(
     [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
-    30,
     null,
-  ) as { data: Array<Member> | undefined }
+    null,
+    0,
+  )
 
+  // 전체 데이터 개수를 기반으로 필요한 추가 페이지 수 계산
+  const totalCount = firstPageData?.count || 0
+  const neededPages = Math.ceil(totalCount / 1000)
+
+  // 필요한 추가 페이지 데이터 가져오기
+  const { data: secondPageData } = useGameMembers(
+    [...QUERY_KEYS.game1Stats.all()],
+    TABLE_NAMES.MEMBERS,
+    null,
+    null,
+    1,
+  )
+
+  // 모든 데이터 합치기
+  const allMembers = React.useMemo(() => {
+    const combinedData = [
+      ...(firstPageData?.data || []),
+      ...(neededPages > 1 ? secondPageData?.data || [] : []),
+    ]
+    return { data: combinedData, count: combinedData.length }
+  }, [firstPageData, secondPageData, neededPages])
 
   const dailyData = React.useMemo(() => {
-    if (!gameMembers) return []
+    if (!allMembers?.data) return []
 
-    const groupedByDate: Record<string, DailyStats> = gameMembers.reduce(
-      (acc, member) => {
+    const groupedByDay = allMembers.data.reduce<Record<string, DailyStats>>(
+      (acc, member: Member) => {
         const date = new Date(member.created_at).toISOString().split('T')[0]
 
         if (!acc[date]) {
@@ -87,7 +110,7 @@ export function DailyStats() {
         if (member.status === 'completed') acc[date].completed++
 
         // member_actions 데이터 처리
-        member.member_actions?.forEach(action => {
+        member.member_actions?.forEach((action) => {
           if (!acc[date].actions[action.action_type]) {
             acc[date].actions[action.action_type] = 0
           }
@@ -99,22 +122,22 @@ export function DailyStats() {
       {} as Record<string, DailyStats>,
     )
 
-    return Object.values(groupedByDate)
+    return Object.values(groupedByDay)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((item) => ({
         ...item,
         date: `${new Date(item.date).getMonth() + 1}/${new Date(item.date).getDate()}`,
       }))
-  }, [gameMembers])
+  }, [allMembers])
 
-  // 차트에 표시할 데이터 (최근 30일)
-  const chartData = dailyData.slice(-30)
+  // 차트에 표시할 데이터 (전체 기간)
+  const chartData = dailyData
 
   // 액션 타입 목록 추출
   const actionTypes = React.useMemo(() => {
     const types = new Set<string>()
-    chartData.forEach(day => {
-      Object.keys(day.actions).forEach(type => types.add(type))
+    chartData.forEach((day) => {
+      Object.keys(day.actions).forEach((type) => types.add(type))
     })
     return Array.from(types)
   }, [chartData])
@@ -122,7 +145,7 @@ export function DailyStats() {
   // 액션 타입 한글 매핑
   const actionTypeLabels = {
     share: '공유하기 횟수',
-    retry: '다시하기 횟수'
+    retry: '다시하기 횟수',
   }
 
   const totalPages = Math.ceil(dailyData.length / itemsPerPage)
@@ -238,8 +261,10 @@ export function DailyStats() {
                 <TableHead>날짜</TableHead>
                 <TableHead>사용자 수</TableHead>
                 <TableHead>엔딩 완료</TableHead>
-                {actionTypes.map(type => (
-                  <TableHead key={type}>{actionTypeLabels[type as keyof typeof actionTypeLabels]}</TableHead>
+                {actionTypes.map((type) => (
+                  <TableHead key={type}>
+                    {actionTypeLabels[type as keyof typeof actionTypeLabels]}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -250,7 +275,7 @@ export function DailyStats() {
                     <TableCell>{day.date}</TableCell>
                     <TableCell>{day.users.toLocaleString()}</TableCell>
                     <TableCell>{day.completed.toLocaleString()}</TableCell>
-                    {actionTypes.map(type => (
+                    {actionTypes.map((type) => (
                       <TableCell key={type}>
                         {day.actions[type]?.toLocaleString() || 0}
                       </TableCell>
@@ -259,7 +284,10 @@ export function DailyStats() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3 + actionTypes.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={3 + actionTypes.length}
+                    className="h-24 text-center"
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <p className="text-muted-foreground">
                         아직 데이터가 없습니다.

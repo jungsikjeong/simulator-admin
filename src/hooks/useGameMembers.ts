@@ -3,49 +3,6 @@ import type { Tables } from '@/supabase/database.types'
 import { useQuery } from '@tanstack/react-query'
 import type { DateRange } from 'react-day-picker'
 
-export function useGameMembers(
-  queryKey: Array<string>,
-  tableName: string,
-  days: number | null = null,
-  limit: number | null = null,
-) {
-  return useQuery({
-    queryKey: queryKey,
-    queryFn: async () => {
-      const thirtyDaysAgo = new Date()
-
-      if (days !== null) {
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - days)
-      }
-
-      let query = supabase
-        .from(tableName)
-        .select(`
-          *,
-          member_actions(action_type, created_at)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (limit !== null) {
-        query = query.limit(limit)
-      }
-
-      if (days !== null) {
-        query = query.gte('created_at', thirtyDaysAgo.toISOString())
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      return data as Array<Tables<'members'>>
-    },
-    refetchInterval: 30000, // 30초마다 자동 갱신
-  })
-}
-
 export function useGameMembersByDateRange(
   queryKey: Array<string>,
   tableName: string,
@@ -87,6 +44,56 @@ export function useGameMembersByDateRange(
       }
 
       return data as Array<Tables<'members'>>
+    },
+    refetchInterval: 30000, // 30초마다 자동 갱신
+  })
+}
+
+export function useGameMembers(
+  queryKey: Array<string>,
+  tableName: string,
+  days: number | null = null,
+  limit: number | null = null,
+  page: number = 0,
+) {
+  return useQuery({
+    queryKey: [...queryKey, page],
+    queryFn: async () => {
+      const thirtyDaysAgo = new Date()
+
+      if (days !== null) {
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - days)
+      }
+
+      let query = supabase
+        .from(tableName)
+        .select(
+          `
+          *,
+          member_actions(action_type, created_at)
+        `,
+          { count: 'exact' },
+        )
+        .order('created_at', { ascending: false })
+
+      if (limit !== null) {
+        query = query.limit(limit)
+      }
+
+      if (days !== null) {
+        query = query.gte('created_at', thirtyDaysAgo.toISOString())
+      }
+
+      const { data, error, count } = await query
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      return { data, count } as {
+        data: Array<Tables<'members'>>
+        count: number
+      }
     },
     refetchInterval: 30000, // 30초마다 자동 갱신
   })

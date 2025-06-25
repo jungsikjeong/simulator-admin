@@ -45,7 +45,7 @@ interface Member {
   id: string
   name: string
   status: 'in_progress' | 'completed' | 'pending'
-  member_actions?: Array<Action>
+  member_actions_2?: Array<Action>
 }
 
 interface DailyStats {
@@ -59,18 +59,43 @@ export function DailyStats() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  const { data: gameMembers } = useGameMembers2(
+  // 첫 페이지 데이터 가져오기
+  const { data: firstPageData } = useGameMembers2(
     [...QUERY_KEYS.game2Stats.all()],
     TABLE_NAMES.MEMBERS_2,
-    30,
     null,
-  ) as { data: Array<Member> | undefined }
+    null,
+    0,
+    true,
+  )
+
+  // 전체 데이터 개수를 기반으로 필요한 추가 페이지 수 계산
+  const totalCount = firstPageData?.count || 0
+
+  // 1000개 이상일 때만 두 번째 페이지 데이터 요청
+  const { data: secondPageData } = useGameMembers2(
+    [...QUERY_KEYS.game2Stats.all()],
+    TABLE_NAMES.MEMBERS_2,
+    null,
+    null,
+    1,
+    totalCount > 1000,
+  )
+
+  // 모든 데이터 합치기
+  const allMembers = React.useMemo(() => {
+    const combinedData = [
+      ...(firstPageData?.data || []),
+      ...(totalCount > 1000 ? secondPageData?.data || [] : []),
+    ]
+    return { data: combinedData, count: combinedData.length }
+  }, [firstPageData, secondPageData, totalCount])
 
   const dailyData = React.useMemo(() => {
-    if (!gameMembers) return []
+    if (!allMembers?.data) return []
 
-    const groupedByDate: Record<string, DailyStats> = gameMembers.reduce(
-      (acc, member) => {
+    const groupedByDay = allMembers.data.reduce<Record<string, DailyStats>>(
+      (acc, member: Member) => {
         const date = new Date(member.created_at).toISOString().split('T')[0]
 
         if (!acc[date]) {
@@ -86,7 +111,7 @@ export function DailyStats() {
         if (member.status === 'completed') acc[date].completed++
 
         // member_actions 데이터 처리
-        member.member_actions?.forEach((action) => {
+        member.member_actions_2?.forEach((action) => {
           if (!acc[date].actions[action.action_type]) {
             acc[date].actions[action.action_type] = 0
           }
@@ -98,16 +123,16 @@ export function DailyStats() {
       {} as Record<string, DailyStats>,
     )
 
-    return Object.values(groupedByDate)
+    return Object.values(groupedByDay)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((item) => ({
         ...item,
         date: `${new Date(item.date).getMonth() + 1}/${new Date(item.date).getDate()}`,
       }))
-  }, [gameMembers])
+  }, [allMembers])
 
-  // 차트에 표시할 데이터 (최근 30일)
-  const chartData = dailyData.slice(-30)
+  // 차트에 표시할 데이터 (전체 기간)
+  const chartData = dailyData
 
   // 액션 타입 목록 추출
   const actionTypes = React.useMemo(() => {

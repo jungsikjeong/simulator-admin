@@ -64,38 +64,55 @@ interface WeeklyStats {
 export function WeeklyStats() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+  const [supabasePage, setSupabasePage] = useState(0)
+  const [allMembers, setAllMembers] = useState<Member[]>([])
 
-  const { data: gameMembers } = useGameMembers(
+  const { data: gameMembers, isLoading } = useGameMembers(
     [...QUERY_KEYS.game1Stats.all()],
     TABLE_NAMES.MEMBERS,
     90, // 약 3개월 데이터
     null,
-  ) as { data: Array<Member> | undefined }
+    supabasePage,
+  )
+
+  // 데이터가 로드되면 allMembers 상태 업데이트
+  React.useEffect(() => {
+    if (gameMembers?.data && gameMembers.data.length > 0) {
+      setAllMembers((prev) => {
+        // 중복 제거를 위해 Set 사용
+        const uniqueMembers = new Set(
+          [...prev, ...gameMembers.data].map((m) => m.id),
+        )
+        return [...uniqueMembers].map(
+          (id) => [...prev, ...gameMembers.data].find((m) => m.id === id)!,
+        )
+      })
+
+      // 데이터가 1000개 있으면 다음 페이지 로드
+      if (gameMembers.data.length === 1000) {
+        setSupabasePage((prev) => prev + 1)
+      }
+    }
+  }, [gameMembers?.data])
 
   const weeklyData = React.useMemo(() => {
-    if (!gameMembers) return []
+    if (!allMembers.length) return []
 
-    const groupedByWeek: Record<string, WeeklyStats> = gameMembers.reduce(
+    const groupedByWeek: Record<string, WeeklyStats> = allMembers.reduce(
       (acc, member) => {
         const date = dayjs(member.created_at)
         const year = date.year()
         const month = date.month() + 1
 
+        // 해당 월의 1일이 속한 주의 시작일을 기준으로 주차 계산
         const firstDayOfMonth = dayjs(new Date(year, month - 1, 1))
-        const lastDayOfMonth = firstDayOfMonth.endOf('month')
-
-        const weekInMonth = Math.ceil(date.date() / 7)
+        const weekInMonth = Math.ceil(
+          (date.date() - firstDayOfMonth.date() + firstDayOfMonth.day()) / 7,
+        )
 
         const weekKey = `${year}-${month}-${weekInMonth}`
         const displayWeek = `${month}월 ${weekInMonth}주차`
-
-        const targetDay = (weekInMonth - 1) * 7 + 1
-        const weekStartDay =
-          targetDay <= lastDayOfMonth.date()
-            ? targetDay
-            : firstDayOfMonth.date()
-
-        const weekStart = dayjs(new Date(year, month - 1, weekStartDay))
+        const weekStart = date.startOf('week')
 
         if (!acc[weekKey]) {
           acc[weekKey] = {
@@ -113,8 +130,11 @@ export function WeeklyStats() {
 
         // member_actions 집계
         if (Array.isArray(member.member_actions)) {
-          member.member_actions.forEach(action => {
-            if (action.action_type === 'share' || action.action_type === 'retry') {
+          member.member_actions.forEach((action) => {
+            if (
+              action.action_type === 'share' ||
+              action.action_type === 'retry'
+            ) {
               if (!acc[weekKey].actions[action.action_type]) {
                 acc[weekKey].actions[action.action_type] = 0
               }
@@ -131,7 +151,7 @@ export function WeeklyStats() {
     return Object.values(groupedByWeek).sort(
       (a, b) => dayjs(a.weekStart).unix() - dayjs(b.weekStart).unix(),
     )
-  }, [gameMembers])
+  }, [allMembers])
 
   const chartData = weeklyData.slice(-12)
 
@@ -225,8 +245,10 @@ export function WeeklyStats() {
                 <TableHead>사용자 수</TableHead>
                 <TableHead>엔딩 완료</TableHead>
                 <TableHead>완료율</TableHead>
-                {actionTypes.map(type => (
-                  <TableHead key={type}>{actionTypeLabels[type as keyof typeof actionTypeLabels]}</TableHead>
+                {actionTypes.map((type) => (
+                  <TableHead key={type}>
+                    {actionTypeLabels[type as keyof typeof actionTypeLabels]}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -242,7 +264,7 @@ export function WeeklyStats() {
                         ? `${Math.round((week.completed / week.users) * 100)}%`
                         : '0%'}
                     </TableCell>
-                    {actionTypes.map(type => (
+                    {actionTypes.map((type) => (
                       <TableCell key={type}>
                         {(week.actions[type] ?? 0).toLocaleString()}
                       </TableCell>

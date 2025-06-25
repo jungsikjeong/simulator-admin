@@ -8,9 +8,12 @@ export function useGameMembers2(
   tableName: string,
   days: number | null = null,
   limit: number | null = null,
+  page: number = 0,
+  enabled: boolean = true,
 ) {
   return useQuery({
-    queryKey: queryKey,
+    queryKey: [...queryKey, page],
+    enabled,
     queryFn: async () => {
       const thirtyDaysAgo = new Date()
 
@@ -25,24 +28,30 @@ export function useGameMembers2(
           *,
           member_actions_2(action_type, created_at)
         `,
+          { count: 'exact' },
         )
         .order('created_at', { ascending: false })
 
       if (limit !== null) {
         query = query.limit(limit)
+      } else {
+        query = query.range(page * 1000, (page + 1) * 1000 - 1)
       }
 
       if (days !== null) {
         query = query.gte('created_at', thirtyDaysAgo.toISOString())
       }
 
-      const { data, error } = await query
+      const { data, error, count } = await query
 
       if (error) {
         throw new Error(error.message)
       }
 
-      return data as Array<Tables<'members'>>
+      return { data, count } as {
+        data: Array<Tables<'members'>>
+        count: number
+      }
     },
     refetchInterval: 30000, // 30초마다 자동 갱신
   })
